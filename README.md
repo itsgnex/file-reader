@@ -1,7 +1,4 @@
-Perfect. Based on your answers, here is the **FINAL, CLEAN, COPY-PASTE-READY `README.md`**.
 
-You do **not** need to edit anything.
-Just copy → paste → commit.
 
 ---
 
