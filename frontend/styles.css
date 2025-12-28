@@ -1,0 +1,223 @@
+:root {
+    --bg: #fafafa;
+    --panel: #ffffff;
+    --text: #1f2933;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --accent: #111827;
+  }
+  
+  body.dark {
+    --bg: #0f1115;
+    --panel: #16181d;
+    --text: #e5e7eb;
+    --muted: #9ca3af;
+    --border: #2a2d34;
+    --accent: #e5e7eb;
+  }
+  
+  * { box-sizing: border-box; }
+  
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, sans-serif;
+    transition: background 0.3s ease, color 0.3s ease;
+  }
+  
+  /* =========================
+     Header
+  ========================= */
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background:
+      radial-gradient(
+        1200px 300px at 50% -200px,
+        rgba(0,0,0,0.04),
+        transparent 70%
+      ),
+      var(--bg);
+    border-bottom: 1px solid var(--border);
+  }
+  
+  .topbar-inner {
+    max-width: 900px;
+    margin: auto;
+    padding: 14px 24px;
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .logo { font-weight: 600; }
+  
+  /* =========================
+     Layout
+  ========================= */
+  .container {
+    max-width: 900px;
+    margin: 50px auto;
+    padding: 0 24px;
+  }
+  
+  .description {
+    max-width: 700px;
+    color: var(--muted);
+  }
+  
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 18px;
+    margin-top: 16px;
+  }
+  
+  .output {
+    white-space: pre-wrap;
+  }
+  
+  /* =========================
+     Buttons
+  ========================= */
+  button {
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    padding: 7px 14px;
+    cursor: pointer;
+  }
+  
+  button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .status {
+    margin-top: 10px;
+    color: var(--muted);
+  }
+  
+  /* =========================
+     Tabs
+  ========================= */
+  .tabs {
+    position: relative;
+    display: flex;
+    margin-top: 40px;
+    border-bottom: 1px solid var(--border);
+  }
+  
+  .tab {
+    flex: 1;
+    background: none;
+    color: var(--muted);
+  }
+  
+  .tab.active {
+    color: var(--text);
+  }
+  
+  .tab-indicator {
+    position: absolute;
+    bottom: 0;
+    width: 33.33%;
+    height: 2px;
+    background: var(--accent);
+    transition: transform 0.3s ease;
+  }
+  
+  .tab-content {
+    display: none;
+  }
+  
+  .tab-content.active {
+    display: block;
+  }
+  
+  /* =========================
+     Loader
+  ========================= */
+  .loader {
+    margin-top: 16px;
+    height: 2px;
+    background: var(--border);
+    overflow: hidden;
+  }
+  
+  .loader-bar {
+    width: 40%;
+    height: 100%;
+    background: var(--accent);
+    animation: load 1.2s infinite ease;
+  }
+  
+  @keyframes load {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(150%); }
+  }
+  
+  .hidden {
+    display: none;
+  }
+  
+  /* =========================
+     Skeleton
+  ========================= */
+  .skeleton {
+    height: 120px;
+    background: linear-gradient(
+      90deg,
+      var(--border) 25%,
+      var(--panel) 37%,
+      var(--border) 63%
+    );
+    background-size: 400% 100%;
+    animation: shimmer 1.4s infinite;
+  }
+  
+  @keyframes shimmer {
+    from { background-position: 100% 0; }
+    to { background-position: -100% 0; }
+  }
+  
+  /* =========================
+     Language badge
+  ========================= */
+  .lang {
+    margin-top: 10px;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+  
+  /* =========================
+     Footer
+  ========================= */
+  .footer {
+    margin-top: 80px;
+    padding: 40px 0;
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+  
+  .footer-inner {
+    max-width: 900px;
+    margin: auto;
+    padding: 0 24px;
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+  }
+  
+  .footer-left strong {
+    color: var(--text);
+  }
+  
+  @media (max-width: 600px) {
+    .footer-inner {
+      flex-direction: column;
+    }
+  }
+  

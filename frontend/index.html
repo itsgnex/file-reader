@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>File Reader</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<!-- =========================
+     Sticky Header
+========================= -->
+<header class="topbar">
+  <div class="topbar-inner">
+    <span class="logo">File Reader</span>
+    <button id="themeToggle" onclick="toggleTheme()">Dark mode</button>
+  </div>
+</header>
+
+<div class="container">
+
+  <p class="description">
+    A local tool for transcribing, translating, summarizing, and querying audio files.
+    All processing runs locally. No uploads. No tracking.
+  </p>
+
+  <!-- =========================
+       Upload Panel
+  ========================= -->
+  <div class="panel upload-panel">
+    <input type="file" id="fileInput" accept=".mp3,.wav,.m4a,.ogg">
+    <button id="uploadBtn" onclick="upload()">Process file</button>
+
+    <div class="status" id="status"></div>
+
+    <div class="loader hidden" id="loader">
+      <div class="loader-bar"></div>
+    </div>
+
+    <div class="lang hidden" id="langBadge">Detected language: English</div>
+  </div>
+
+  <!-- =========================
+       Tabs
+  ========================= -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab(event,'transcription')">Transcription</button>
+    <button class="tab" onclick="switchTab(event,'translation')">Translation</button>
+    <button class="tab" onclick="switchTab(event,'summary')">Summary</button>
+    <div class="tab-indicator"></div>
+  </div>
+
+  <!-- =========================
+       Tab Content
+  ========================= -->
+  <div class="panel output tab-content active" id="transcription">No file processed.</div>
+  <div class="panel output tab-content" id="translation">No file processed.</div>
+  <div class="panel output tab-content" id="summary">No file processed.</div>
+
+  <hr>
+
+  <!-- =========================
+       Q&A
+  ========================= -->
+  <h2>Ask a question</h2>
+
+  <div class="panel qa">
+    <input type="text" id="question" placeholder="Ask a general question about the file">
+    <button onclick="ask()">Submit</button>
+    <div class="output" id="answer">No question asked.</div>
+  </div>
+
+  <!-- =========================
+       Footer
+  ========================= -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-left">
+        <strong>File Reader</strong><br>
+        Runs locally. No uploads. No tracking.
+      </div>
+
+      <div class="footer-right">
+        Built with FastAPI · Whisper · Vanilla JS<br>
+        © 2025 Ratna Koushik
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<!-- =========================
+     JavaScript
+========================= -->
+<script>
+let isProcessing = false;
+let dark = false;
+
+/* ---------- Theme ---------- */
+function toggleTheme() {
+  dark = !dark;
+  document.body.classList.toggle("dark", dark);
+  document.getElementById("themeToggle").innerText =
+    dark ? "Light mode" : "Dark mode";
+}
+
+/* ---------- Tabs ---------- */
+function switchTab(event, id) {
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+
+  event.target.classList.add("active");
+  document.getElementById(id).classList.add("active");
+
+  const index = Array.from(event.target.parentNode.children).indexOf(event.target);
+  document.querySelector(".tab-indicator").style.transform =
+    `translateX(${index * 100}%)`;
+}
+
+/* ---------- Upload ---------- */
+function upload() {
+  if (isProcessing) return;
+
+  const fileInput = document.getElementById("fileInput");
+  const button = document.getElementById("uploadBtn");
+  const status = document.getElementById("status");
+  const loader = document.getElementById("loader");
+  const lang = document.getElementById("langBadge");
+
+  if (!fileInput.files.length) {
+    status.innerText = "Please select an audio file.";
+    return;
+  }
+
+  const file = fileInput.files[0];
+  const allowedTypes = ["audio/mpeg", "audio/wav", "audio/x-m4a", "audio/ogg"];
+  const maxSizeMB = 50;
+
+  if (!allowedTypes.includes(file.type)) {
+    status.innerText = "Unsupported file type. Please upload MP3, WAV, M4A, or OGG.";
+    return;
+  }
+
+  if (file.size > maxSizeMB * 1024 * 1024) {
+    status.innerText = "File too large. Maximum size is 50 MB.";
+    return;
+  }
+
+  isProcessing = true;
+  button.disabled = true;
+  loader.classList.remove("hidden");
+  lang.classList.add("hidden");
+  status.innerText = "Processing audio…";
+
+  ["transcription","translation","summary"].forEach(id => {
+    const el = document.getElementById(id);
+    el.classList.add("skeleton");
+    el.innerText = "";
+  });
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  fetch("http://127.0.0.1:8000/upload", {
+    method: "POST",
+    body: formData
+  })
+  .then(r => r.json())
+  .then(data => {
+    document.getElementById("transcription").innerText = data.transcription;
+    document.getElementById("translation").innerText = data.translation;
+    document.getElementById("summary").innerText = data.summary;
+
+    ["transcription","translation","summary"].forEach(id => {
+      document.getElementById(id).classList.remove("skeleton");
+    });
+
+    lang.classList.remove("hidden");
+    status.innerText = "File processed successfully.";
+  })
+  .catch(() => {
+    status.innerText = "An error occurred while processing the file.";
+  })
+  .finally(() => {
+    loader.classList.add("hidden");
+    button.disabled = false;
+    isProcessing = false;
+  });
+}
+
+/* ---------- Q&A ---------- */
+function ask() {
+  const q = document.getElementById("question").value.trim();
+  if (!q) return;
+
+  fetch(`http://127.0.0.1:8000/ask?question=${encodeURIComponent(q)}`, {
+    method: "POST"
+  })
+  .then(r => r.json())
+  .then(d => {
+    document.getElementById("answer").innerText = d.answer || "No answer returned.";
+  });
+}
+</script>
+
+</body>
+</html>
